@@ -1,4 +1,4 @@
-package com.api.reservavuelos.DTO;
+package com.api.reservavuelos.DTO.Request;
 
 
 import jakarta.validation.constraints.NotEmpty;

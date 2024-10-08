@@ -4,6 +4,7 @@
     import jakarta.servlet.ServletException;
     import jakarta.servlet.http.HttpServletRequest;
     import jakarta.servlet.http.HttpServletResponse;
+    import lombok.NonNull;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.beans.factory.annotation.Qualifier;
     import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +17,6 @@
     import org.springframework.web.servlet.HandlerExceptionResolver;
 
     import java.io.IOException;
-    import java.util.Arrays;
     import java.util.List;
 
     @Component
@@ -28,23 +28,23 @@
          private JwtTokenProvider jwtTokenProvider;
          @Autowired
          private getTokenForRequest GetTokenForRequest;
-        @Autowired
-        @Qualifier("handlerExceptionResolver")
-        private HandlerExceptionResolver resolver;
-        @Autowired
-        private Url_WhiteList urlWhiteList;
+         @Autowired
+         @Qualifier("handlerExceptionResolver")
+         private HandlerExceptionResolver resolver;
+         @Autowired
+         private Url_WhiteList urlWhiteList;
 
          @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
             String requestURI = request.getRequestURI();
             if(urlWhiteList.Url_whiteList().contains(requestURI)){
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            String  token = GetTokenForRequest.getTokenForRequest(request, response);
-            String username = jwtTokenProvider.getUsernameFromToken(token);
-           UserDetails userDetails =  customUserDetailsService.loadUserByUsername(username);
+            String  token = GetTokenForRequest.getToken(request, response);
+            String email = jwtTokenProvider.getEmailFromToken(token);
+           UserDetails userDetails =  customUserDetailsService.loadUserByUsername(email);
            List<String> userRoles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
            if(userRoles.contains("usuario") || userRoles.contains("piloto") ||userRoles.contains("administrador") ){
                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,

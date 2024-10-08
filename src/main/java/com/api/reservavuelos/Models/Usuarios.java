@@ -3,7 +3,9 @@ package com.api.reservavuelos.Models;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,7 +17,7 @@ import java.util.Objects;
 public class Usuarios {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id_usuario;
+    private Long id;
     @Column(length = 10)
     private String primer_nombre;
     @Column(length = 10)
@@ -28,6 +30,11 @@ public class Usuarios {
     private String email;
     @Column (length = 10)
     private String telefono;
+    @Column()
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date fecha_nacimiento;
+    @Column()
+    private String genero;
      @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
      @JoinColumn(name = "id_credencial")
     private Credenciales credenciales;
@@ -39,9 +46,9 @@ public class Usuarios {
      )
      private List<Roles> roles;
 
-     @OneToOne(mappedBy = "usuario")
-    private Codigos codigos;
-
+     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+     @JoinColumn(name = "id_profile_image")
+     private Profile_image profile_image;
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
@@ -50,7 +57,7 @@ public class Usuarios {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Usuarios usuarios = (Usuarios) o;
-        return getId_usuario() != null && Objects.equals(getId_usuario(), usuarios.getId_usuario());
+        return getId() != null && Objects.equals(getId(), usuarios.getId());
     }
 
     @Override

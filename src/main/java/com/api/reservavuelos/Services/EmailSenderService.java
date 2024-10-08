@@ -1,40 +1,49 @@
 package com.api.reservavuelos.Services;
 
-import com.api.reservavuelos.Exceptions.EmailDonSendException;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@NoArgsConstructor
-@Component
+@Service
 public class EmailSenderService {
 
+    @Value("${spring.mail.username}")
+    private String email;
+
+    private final JavaMailSender javaMailSender;
+
     @Autowired
-    private JavaMailSender javaMailSender;
-
-    public void sendRestPasswordEmail(String to, String from, String email){
-
+    public EmailSenderService(JavaMailSender javaMailSender){
+        this.javaMailSender = javaMailSender;
     }
 
-    public void sendVerifyEmail(String to, String from, String email){
+
+    public void sendRestPasswordEmail(String from, String code){
+
+        String emailContent = "Hola! Te hemos enviado un codigo para restablecer tu contraseña.\n" +
+                "Aqui tienes el codigo para reestablecer tu contraseña: " + code + "\n" +
+                "Si no has solicitado este cambio, no te preocupes, tu contraseña seguirá siendo segura.\n" +
+                "Gracias por utilizar nuestro sistema!";
+        sendEmail(from, emailContent, "Restablecimiento de contraseña");
 
     }
 
     @Async
-    public void sendEmail(String to, String from, String email){
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
-            mimeMessageHelper.setFrom(from);
-            mimeMessageHelper.setTo(to);
-            mimeMessageHelper.setText(email);
-        } catch(MessagingException e){
-              throw new EmailDonSendException();
+    public void sendEmail(String emailTo, String emailContent, String subject){
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try{
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(email);
+            helper.setTo(emailTo);
+            helper.setSubject(subject);
+            helper.setText(emailContent);
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

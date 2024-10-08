@@ -18,13 +18,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailsService  implements UserDetailsService {
-    private AuthRepository authRepository;
-
-
+    private final AuthRepository authRepository;
     @Autowired
     public CustomUserDetailsService(AuthRepository authRepository) {
         this.authRepository = authRepository;
     }
+
     public Collection<GrantedAuthority> mapToAuthorities(List<Roles> roles){
     return roles.stream().map(role ->new SimpleGrantedAuthority(role.getNombre())).collect(Collectors.toList());
     }

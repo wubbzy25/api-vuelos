@@ -4,25 +4,23 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Getter
-@Setter
-@ToString
+@Data
+@RequiredArgsConstructor
 @Entity
-@Table(name = "codigos")
-public class Codigos {
+@Table(name = "profile_image")
+public class Profile_image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_codigo;
-    @Column(length = 6)
-    private int codigo;
-    @Column
-    private LocalDateTime creado;
-   @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario")
-    private Usuarios usuario;
+    private Long id_profile_image;
+    @Column()
+    private String public_id;
+    @Column()
+    private String image_url;
+
+    @OneToOne(mappedBy = "profile_image")
+    private Usuarios usuarios;
 
     @Override
     public final boolean equals(Object o) {
@@ -31,8 +29,8 @@ public class Codigos {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Codigos codigos = (Codigos) o;
-        return getId_codigo() != null && Objects.equals(getId_codigo(), codigos.getId_codigo());
+        Profile_image that = (Profile_image) o;
+        return getId_profile_image() != null && Objects.equals(getId_profile_image(), that.getId_profile_image());
     }
 
     @Override
@@ -40,3 +38,4 @@ public class Codigos {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }
+

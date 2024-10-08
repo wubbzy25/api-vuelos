@@ -1,15 +1,13 @@
-package com.api.reservavuelos.DTO;
+package com.api.reservavuelos.DTO.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseExceptionDTO {
+public class ResponseDTO {
     private String timeStamp;
     private String code;
     private String message;

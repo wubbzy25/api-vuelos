@@ -1,7 +1,7 @@
 package com.api.reservavuelos.Services;
 
-import com.api.reservavuelos.DTO.LoginDTO;
-import com.api.reservavuelos.DTO.RegisterDTO;
+import com.api.reservavuelos.DTO.Request.LoginDTO;
+import com.api.reservavuelos.DTO.Request.RegisterDTO;
 import com.api.reservavuelos.Exceptions.UserAlreadyRegisterException;
 import com.api.reservavuelos.Repositories.AuthRepository;
 import com.api.reservavuelos.Repositories.CredencialesRepository;

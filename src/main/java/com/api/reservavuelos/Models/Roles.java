@@ -9,7 +9,6 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "roles")
 public class Roles {
@@ -19,7 +18,6 @@ public class Roles {
     @Column
     private String nombre;
     @ManyToMany(mappedBy = "roles")
-    @ToString.Exclude
     private List<Usuarios> usuarios;
 
     @Override

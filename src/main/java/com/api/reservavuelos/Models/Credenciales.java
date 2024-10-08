@@ -10,7 +10,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-
 @Entity
 @Table(name = "credenciales")
 public class Credenciales {
@@ -20,7 +19,7 @@ public class Credenciales {
     @Column(length = 512)
     private String contraseña;
     @OneToOne(mappedBy = "credenciales")
-    private Usuarios usuario;
+    private Usuarios usuarios;
 
     @Override
     public final boolean equals(Object o) {

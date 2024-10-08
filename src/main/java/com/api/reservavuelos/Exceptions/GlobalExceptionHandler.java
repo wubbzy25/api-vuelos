@@ -1,6 +1,6 @@
 package com.api.reservavuelos.Exceptions;
 
-import com.api.reservavuelos.DTO.ResponseExceptionDTO;
+import com.api.reservavuelos.DTO.Response.ResponseDTO;
 import com.api.reservavuelos.Utils.DateFormatter;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -8,11 +8,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,21 +24,23 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final DateFormatter dateFormatter;
+    private final Date tiempoactual = new Date();
+
     @Autowired
-    private DateFormatter dateFormatter;
-
-    private Date tiempoactual = new Date();
-
+    public GlobalExceptionHandler(DateFormatter dateFormatter){
+        this.dateFormatter = dateFormatter;
+    }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleBadCredentialsException(HttpServletRequest request, BadCredentialsException exception){
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-400", "La contraseña no coincide", request.getRequestURI()), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ResponseDTO> handleBadCredentialsException(HttpServletRequest request, BadCredentialsException exception){
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-400", "La contraseña no coincide", request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
 
 
     @ExceptionHandler(UrlNotFoundException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleNoHandlerFoundException(HttpServletRequest request, UrlNotFoundException exception){
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-404", "No se encontro la ruta", request.getRequestURI()), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ResponseDTO> handleNoHandlerFoundException(HttpServletRequest request, UrlNotFoundException exception){
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-404", "No se encontro la ruta", request.getRequestURI()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -45,43 +51,63 @@ public class GlobalExceptionHandler {
             String message = error.getDefaultMessage();
             mapErrors.put(code, message);
         });
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-400", mapErrors.toString(), request.getRequestURI()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-400", mapErrors.toString(), request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleJwtTokenExpiredException(HttpServletRequest request, ExpiredJwtException exception){
-    return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-401", "El token ha Expirado", request.getRequestURI()), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ResponseDTO> handleJwtTokenExpiredException(HttpServletRequest request, ExpiredJwtException exception){
+    return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-401", "El token ha Expirado", request.getRequestURI()), HttpStatus.UNAUTHORIZED);
     }
 
+
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException exception){
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-401", "No estas autenticado para realizar esta accion", request.getRequestURI()), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ResponseDTO> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException exception){
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-400", exception.getMessage(), request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({MalformedJwtException.class})
-    public ResponseEntity<ResponseExceptionDTO> handleJwtTokenMalformedException(HttpServletRequest request, MalformedJwtException exception){
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-401", "El token es invalido", request.getRequestURI()), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ResponseDTO> handleJwtTokenMalformedException(HttpServletRequest request, MalformedJwtException exception){
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-401", "El token es invalido", request.getRequestURI()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ResponseDTO> handleIOException(HttpServletRequest request, IOException exception){
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-500", exception.getMessage(), request.getRequestURI()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleAuthenticationCredentialsNotFoundException(HttpServletRequest request , AuthenticationCredentialsNotFoundException exception){
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-401", exception.getMessage(), request.getRequestURI()), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ResponseDTO> handleAuthenticationCredentialsNotFoundException(HttpServletRequest request , AuthenticationCredentialsNotFoundException exception){
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-401", exception.getMessage(), request.getRequestURI()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ResponseDTO> handleMissingServletRequestPartException(HttpServletRequest request, MissingServletRequestPartException exception) {
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-400", "Falta el parametro: " + exception.getRequestPartName(), request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleUserNotFoundException(HttpServletRequest request, UserNotFoundException exception) {
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-404", exception.getMessage(), request.getRequestURI()), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ResponseDTO> handleUserNotFoundException(HttpServletRequest request, UserNotFoundException exception) {
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-404", exception.getMessage(), request.getRequestURI()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserAlreadyRegisterException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleUserAlreadyRegisterException(HttpServletRequest request, UserAlreadyRegisterException exception) {
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"p-500", exception.getMessage(), request.getRequestURI()), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ResponseDTO> handleUserAlreadyRegisterException(HttpServletRequest request, UserAlreadyRegisterException exception) {
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"p-500", exception.getMessage(), request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(EmailDonSendException.class)
-    public ResponseEntity<ResponseExceptionDTO> handleEmailDonSendException(HttpServletRequest request, EmailDonSendException exception) {
-        return new ResponseEntity<>(new ResponseExceptionDTO(dateFormatter.formatearFecha(tiempoactual),"P-500", exception.getMessage(), request.getRequestURI()), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(EmailDontSendException.class)
+    public ResponseEntity<ResponseDTO> handleEmailDonSendException(HttpServletRequest request, EmailDontSendException exception) {
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-500", exception.getMessage(), request.getRequestURI()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseDTO> handleHttpMessageNotReadableException(HttpServletRequest request, HttpMessageNotReadableException exception) {
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-400", "El request no puede estar vacio, debe contener los datos requeridos en el body", request.getRequestURI()), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(CodeNotFoundException.class)
+    public ResponseEntity<ResponseDTO> handleCodeNotFoundException(HttpServletRequest request, CodeNotFoundException exception) {
+        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual),"P-404", exception.getMessage(), request.getRequestURI()), HttpStatus.NOT_FOUND);
     }
 
 

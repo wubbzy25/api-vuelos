@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class getTokenForRequest {
 
-    public String getTokenForRequest(HttpServletRequest request, HttpServletResponse response){
+    public String getToken(HttpServletRequest request, HttpServletResponse response){
         String bearerToken = request.getHeader("Authorization");
         if(bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);

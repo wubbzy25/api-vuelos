@@ -10,6 +10,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -19,7 +21,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import java.io.IOException;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Component
+@Data
 public class JwtValidationFilter extends OncePerRequestFilter {
 
     private Date tiempoactual = new Date();
@@ -50,7 +54,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            String  token = GetTokenForRequest.getTokenForRequest(request, response);
+            String  token = GetTokenForRequest.getToken(request, response);
             jwtTokenProvider.IsValidToken(token);
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException | MalformedJwtException | IllegalArgumentException e){
