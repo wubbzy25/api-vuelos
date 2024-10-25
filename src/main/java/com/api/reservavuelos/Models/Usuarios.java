@@ -14,7 +14,7 @@ import java.util.Objects;
 @ToString
 @Entity
 @Table(name = "usuarios")
-public class Usuarios {
+public class Usuarios  {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -31,6 +31,7 @@ public class Usuarios {
     @Column (length = 10)
     private String telefono;
     @Column()
+    @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date fecha_nacimiento;
     @Column()
@@ -45,10 +46,15 @@ public class Usuarios {
              inverseJoinColumns = @JoinColumn(name = "id_rol")
      )
      private List<Roles> roles;
-
      @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
      @JoinColumn(name = "id_profile_image")
      private Profile_image profile_image;
+    @OneToMany(mappedBy = "usuarios")
+    private List<Metodos_pagos> metodoPagos;
+    @OneToOne(mappedBy = "usuarios")
+    private TwoFactorAuth twoFactorAuth;
+    @OneToOne(mappedBy = "usuarios")
+    private Reservas reservas;
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

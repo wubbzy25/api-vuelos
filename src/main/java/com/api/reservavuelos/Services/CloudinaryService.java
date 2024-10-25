@@ -25,7 +25,9 @@ public class CloudinaryService {
     public Map upload(MultipartFile multipartFile) throws IOException {
         try {
             File file = convert(multipartFile);
-            return cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+            Map result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+            file.delete();
+            return result;
         } catch (IOException e) {
             throw new IOException("Error al subir la imagen", e);
         }

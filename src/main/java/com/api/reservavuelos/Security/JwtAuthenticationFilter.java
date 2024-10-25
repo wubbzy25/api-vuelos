@@ -46,7 +46,8 @@
             String email = jwtTokenProvider.getEmailFromToken(token);
            UserDetails userDetails =  customUserDetailsService.loadUserByUsername(email);
            List<String> userRoles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-           if(userRoles.contains("usuario") || userRoles.contains("piloto") ||userRoles.contains("administrador") ){
+             System.out.println(userDetails.getAuthorities());
+           if(userRoles.contains("usuario") ||userRoles.contains("administrador") ){
                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,
                        null, userDetails.getAuthorities());
                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

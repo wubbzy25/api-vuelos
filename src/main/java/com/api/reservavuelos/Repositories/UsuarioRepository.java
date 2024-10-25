@@ -1,17 +1,14 @@
 package com.api.reservavuelos.Repositories;
 
 import com.api.reservavuelos.Models.Usuarios;
-import jakarta.transaction.Transactional;
-import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import reactor.util.annotation.NonNullApi;
 
 import java.util.Optional;
-
-public interface AuthRepository extends JpaRepository<Usuarios, Long> {
+@Repository
+public interface UsuarioRepository extends JpaRepository<Usuarios, Long> {
     Optional<Usuarios> findByEmail(String email);
 
     Boolean existsByEmail(String email);

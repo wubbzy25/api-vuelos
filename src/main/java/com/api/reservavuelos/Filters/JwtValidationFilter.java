@@ -1,5 +1,6 @@
 package com.api.reservavuelos.Filters;
 
+import com.api.reservavuelos.Exceptions.JwtTokenMissingException;
 import com.api.reservavuelos.Security.JwtTokenProvider;
 import com.api.reservavuelos.Security.getTokenForRequest;
 import com.api.reservavuelos.Utils.DateFormatter;
@@ -48,17 +49,21 @@ public class JwtValidationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-         String requestURI = request.getRequestURI();
-        if(urlWhiteList.Url_whiteList().contains(requestURI)){
+        String requestURI = request.getRequestURI();
+        if (urlWhiteList.Url_whiteList().contains(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
         try {
-            String  token = GetTokenForRequest.getToken(request, response);
+            String token = GetTokenForRequest.getToken(request, response);
+            if (token == null || token.isEmpty()) {
+                throw new JwtTokenMissingException("El token no puede estar vacío");
+            }
             jwtTokenProvider.IsValidToken(token);
             filterChain.doFilter(request, response);
-        } catch (ExpiredJwtException | MalformedJwtException | IllegalArgumentException e){
-           resolver.resolveException(request,response,null,e);
-    }
+        } catch (ExpiredJwtException | MalformedJwtException | JwtTokenMissingException e) {
+            resolver.resolveException(request, response, null, e);
+        }
     }
 }
+

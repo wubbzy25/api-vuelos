@@ -17,7 +17,9 @@ public class Url_WhiteList {
                 "/api/v1/auth/login",
                 "/api/v1/auth/forgot-password",
                 "/api/v1/auth/verify-code",
-                "/api/v1/auth/change-password"
+                "/api/v1/auth/change-password",
+                "/api/v1/auth/2FA/setup",
+                "/api/v1/auth/2FA/verify"
         );
     }
 }

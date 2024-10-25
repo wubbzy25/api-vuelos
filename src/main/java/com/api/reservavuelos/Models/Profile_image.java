@@ -4,13 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@ToString
 @RequiredArgsConstructor
 @Entity
 @Table(name = "profile_image")
-public class Profile_image {
+public class Profile_image  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_profile_image;

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
@@ -11,7 +12,7 @@ import java.util.Objects;
 @ToString
 @Entity
 @Table(name = "usuarios_roles")
-public class Usuarios_Roles {
+public class Usuarios_Roles  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_usuario_rol;

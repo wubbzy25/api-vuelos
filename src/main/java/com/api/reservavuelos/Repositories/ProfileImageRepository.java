@@ -4,7 +4,9 @@ import com.api.reservavuelos.Models.Profile_image;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ProfileImageRepository extends JpaRepository<Profile_image, Long> {
     @Query(
             value = "SELECT p.id_profile_image,p.public_id, p.image_url FROM profile_image p " +

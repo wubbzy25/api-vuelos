@@ -21,8 +21,6 @@ import java.util.*;
 @Component
 public class URLFilter extends OncePerRequestFilter {
 
-    private Date tiempoactual = new Date();
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -33,17 +31,30 @@ public class URLFilter extends OncePerRequestFilter {
     static {
         URLS_MAP.put("/api/v1/auth/register", "POST");
         URLS_MAP.put("/api/v1/auth/login", "POST");
-        URLS_MAP.put("/api/v1/reservas/vuelos", "GET");
         URLS_MAP.put("/api/v1/auth/forgot-password", "GET");
         URLS_MAP.put("/api/v1/auth/verify-code", "POST");
         URLS_MAP.put("/api/v1/auth/change-password", "POST");
+        URLS_MAP.put("/api/v1/auth/2FA/setup", "GET");
+        URLS_MAP.put("/api/v1/auth/2FA/verify", "POST");
         URLS_MAP.put("/api/v1/profile/upload-image", "POST");
         URLS_MAP.put("/api/v1/profile/\\d+", "GET");
+        URLS_MAP.put("/api/v1/profile/edit-profile/\\d+", "PUT");
+        URLS_MAP.put("/api/v1/metodos/\\d+", "GET");
+        URLS_MAP.put("/api/v1/metodos/\\d+/\\d+", "GET");
+        URLS_MAP.put("/api/v1/metodos/crear/\\d+", "POST");
+        URLS_MAP.put("/api/v1/metodos/editar/\\d+/\\d+", "PUT");
+        URLS_MAP.put("/api/v1/metodos/eliminar/\\d+/\\d+", "DELETE");
+        URLS_MAP.put("/api/v1/vuelos", "GET");
+        URLS_MAP.put("/api/v1/vuelos/vuelo/\\d+", "GET");
+        URLS_MAP.put("/api/v1/vuelos/vuelo/crear", "POST");
+        URLS_MAP.put("/api/v1/vuelos/vuelo/actualizar-estado/\\d+", "PUT");
+        URLS_MAP.put("/api/v1/vuelos/vuelo/editar/\\d+", "PUT");
+        URLS_MAP.put("/api/v1/vuelos/vuelo/eliminar/\\d+", "DELETE");
+        URLS_MAP.put("/api/v1/reservas/reservar", "POST");
     }
 
-
     private void ExceptionHandler(HttpServletResponse response, String code, String message, String requestURI) throws IOException {
-        String formattedDate = dateFormatter.formatearFecha(tiempoactual);
+        String formattedDate = dateFormatter.formatearFecha();
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setContentType("application/json");
         ResponseDTO responseDTO = new ResponseDTO();
@@ -73,12 +84,9 @@ public class URLFilter extends OncePerRequestFilter {
             if (!urlMatched) {
                 throw new UrlNotFoundException();
             }
-
             filterChain.doFilter(request, response);
-        } catch (UrlNotFoundException e) {
+        } catch (UrlNotFoundException | MethodNotAllowedException e) {
             ExceptionHandler(response, "404", "URL no Existe :/", requestURI);
-        } catch (MethodNotAllowedException e) {
-            ExceptionHandler(response, "400", "El metodo HTTP ingresado no es permitido para esta url", requestURI);
         }
     }
 }

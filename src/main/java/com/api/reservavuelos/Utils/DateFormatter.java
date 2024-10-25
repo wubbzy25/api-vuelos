@@ -8,9 +8,8 @@ import java.util.Date;
 @Component
 public class DateFormatter {
 
-    public String formatearFecha(Date tiempoactual ){
+    public String formatearFecha(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = dateFormat.format(new Date());
-        return formattedDate;
+        return dateFormat.format(new Date());
     }
 }

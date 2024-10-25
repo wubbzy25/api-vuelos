@@ -1,67 +1,58 @@
 package com.api.reservavuelos.Controllers;
 import com.api.reservavuelos.DTO.Request.*;
+import com.api.reservavuelos.DTO.Response.AuthResponseDTO;
 import com.api.reservavuelos.DTO.Response.ResponseDTO;
 import com.api.reservavuelos.Services.AuthService;
-import com.api.reservavuelos.Utils.DateFormatter;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.apache.hc.client5.http.auth.InvalidCredentialsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-
 @RestController
 @RequestMapping("/api/v1/auth/")
 public class AuthController {
-  private final Date tiempoactual = new Date();
-  private final DateFormatter dateFormatter;
+
   private final AuthService authService;
   @Autowired
-  public AuthController(DateFormatter dateFormatter, AuthService authService){
-    this.dateFormatter = dateFormatter;
+  public AuthController(AuthService authService){
     this.authService = authService;
   }
     @PostMapping("login")
-    public ResponseEntity<ResponseDTO> IniciarSesion(@Valid @RequestBody LoginDTO loginDto, HttpServletRequest request){
-      String token = authService.login(loginDto);
-      return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual), "P-200", token, request.getRequestURI()), HttpStatus.OK);
+    public ResponseEntity<AuthResponseDTO> IniciarSesion(@Valid @RequestBody LoginRequestDTO loginRequestDto, HttpServletRequest request) throws InvalidCredentialsException {
+      return new ResponseEntity<>(authService.login(loginRequestDto,request), HttpStatus.OK);
     }
 
     @PostMapping("register")
-    public ResponseEntity<ResponseDTO> Registrar(@Valid @RequestBody RegisterDTO registerDTO, HttpServletRequest request){
-        authService.registrarUsuario(registerDTO);
-        return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual), "P-201", "El usuario ha sido registrado exitosamente", request.getRequestURI() ),HttpStatus.CREATED);
+    public ResponseEntity<AuthResponseDTO> Registrar(@Valid @RequestBody RegisterRequestDTO registerRequestDTO, HttpServletRequest request){
+        return new ResponseEntity<>(authService.registrarUsuario(registerRequestDTO,request), HttpStatus.CREATED);
     }
 
 
     @GetMapping("forgot-password")
-    public ResponseEntity<ResponseDTO> OlvidarContraseña(@Valid @RequestBody ForgotPasswordDTO forgotPasswordDto, HttpServletRequest request){
-     authService.OlvidarContraseña(forgotPasswordDto);
-    return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual), "P-200", "Codigo enviado al correo electronico registrado", request.getRequestURI()), HttpStatus.OK);
+    public ResponseEntity<ResponseDTO> OlvidarContraseña(@Valid @RequestBody ForgotPasswordRequestDTO forgotPasswordRequestDto, HttpServletRequest request){
+    return new ResponseEntity<>(authService.OlvidarContraseña(forgotPasswordRequestDto, request), HttpStatus.OK);
     }
 
     @PostMapping("verify-code")
-  public ResponseEntity<ResponseDTO> VerificarCodigo(@Valid @RequestBody CodigoDTO codigoDTO, HttpServletRequest request){
-      authService.VerificarCodigo(codigoDTO);
-      return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual), "P-200", "Codigo verificado correctamente", request.getRequestURI()), HttpStatus.OK);
+  public ResponseEntity<ResponseDTO> VerificarCodigo(@Valid @RequestBody CodigoRequestDTO codigoRequestDTO, HttpServletRequest request){
+      return new ResponseEntity<>(authService.VerificarCodigo(codigoRequestDTO,request), HttpStatus.OK);
     }
 
     @PostMapping("change-password")
-    public ResponseEntity<ResponseDTO> CambiarContraseña(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO, HttpServletRequest request){
-      authService.CambiarContraseña(resetPasswordDTO);
-      return new ResponseEntity<>(new ResponseDTO(dateFormatter.formatearFecha(tiempoactual), "P-200", "Contraseña cambiada correctamente", request.getRequestURI()), HttpStatus.OK);
+    public ResponseEntity<ResponseDTO> CambiarContraseña(@Valid @RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO, HttpServletRequest request){
+      return new ResponseEntity<>(authService.CambiarContraseña(resetPasswordRequestDTO, request), HttpStatus.OK);
     }
-
-
-    /*
-   @GetMapping("logout")
-    public ResponseEntity<String> CerrarSesion(){
-     return new ResponseEntity<>("Usuario deslogeado", HttpStatus.OK);
+    @GetMapping("/2FA/setup")
+   public ResponseEntity<ResponseDTO> setup2FA(@RequestParam Long id_usuario, HttpServletRequest request) throws Exception {
+      return new ResponseEntity<>(authService.TotpSetup(id_usuario,request), HttpStatus.OK);
     }
-
-     */
-
+    @PostMapping("/2FA/verify")
+    public ResponseEntity<AuthResponseDTO> verify2FA(@RequestParam Long id_usuario, @Valid @RequestBody Codigo2FARequestDTO codigo2FARequestDTO, HttpServletRequest request) throws JsonProcessingException {
+      return new ResponseEntity<>(authService.TotpVerification(id_usuario, codigo2FARequestDTO, request), HttpStatus.OK);
+    }
 }
 

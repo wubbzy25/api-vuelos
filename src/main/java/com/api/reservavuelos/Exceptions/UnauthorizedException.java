@@ -1,0 +1,7 @@
+package com.api.reservavuelos.Exceptions;
+
+public class UnauthorizedException extends RuntimeException {
+    public UnauthorizedException(String message) {
+        super(message);
+    }
+}
