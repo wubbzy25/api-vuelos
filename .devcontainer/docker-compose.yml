@@ -6,6 +6,7 @@ services:
   app:
     container_name: javadev
     build: 
+      context: .
       dockerfile: Dockerfile
     environment:
         POSTGRES_PASSWORD: postgres
