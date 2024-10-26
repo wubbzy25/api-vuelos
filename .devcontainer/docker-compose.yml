@@ -38,11 +38,14 @@ services:
       POSTGRES_DB: postgres
     networks:
     - app-network
-    
+    ports:
+     - "5432:5432"
 
   redis:
     container_name: redis
     image: redis:latest
+    networks:
+    - app-network
     ports:
       - "6379:6379"
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
